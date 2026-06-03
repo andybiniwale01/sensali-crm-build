@@ -292,7 +292,7 @@ export function StatusBadge({ status }: { status: Property['status'] }) {
 
 export function SignalTag({ label }: { label: string }) {
   return (
-    <span className="inline-block text-[10px] px-2 py-1 bg-[#161b22] text-[#C9A84C] border border-[#C9A84C]/40">
+    <span className="inline-block text-[13px] font-semibold px-3 py-1 bg-[#161b22] text-[#C9A84C] border border-[#C9A84C]/40">
       {label}
     </span>
   )

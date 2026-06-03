@@ -191,7 +191,7 @@ export default function DashboardPage() {
                             <SignalTag key={idx} label={signal.label} />
                           ))}
                           {property.signals.length > 2 && (
-                            <span className="text-[10px] text-[#8b949e]">+{property.signals.length - 2}</span>
+                            <span className="text-[11px] font-medium text-[#C9A84C]">+{property.signals.length - 2}</span>
                           )}
                         </div>
                       </td>
