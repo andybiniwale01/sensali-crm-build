@@ -7,8 +7,8 @@ const _geist = Geist({ subsets: ["latin"] });
 const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
+  title: 'SENSALI | Real Estate Intelligence',
+  description: 'Know who\'s selling before they know it themselves.',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -35,8 +35,8 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className="font-sans antialiased">
+    <html lang="en" className="bg-[#0d1117]">
+      <body className="font-sans antialiased bg-[#0d1117] text-white">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
