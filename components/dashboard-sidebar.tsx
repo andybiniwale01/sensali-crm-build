@@ -1,13 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { SensaliLogoSmall } from '@/components/sensali-logo'
 import { currentAgent } from '@/lib/data'
-import { fetchSuburbs } from '@/lib/api'
-import { useEffect, useState } from 'react'
 import type { Suburb } from '@/lib/data'
+import { fetchSuburbs } from '@/lib/api'
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: DashboardIcon },
