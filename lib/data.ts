@@ -29,17 +29,13 @@ export interface Suburb {
   isExclusive: boolean
 }
 
-export const mockSuburbs: Suburb[] = [
-  { name: 'Karrinyup', postcode: '6018', propertyCount: 847, isExclusive: true },
-  { name: 'Scarborough', postcode: '6019', propertyCount: 1243, isExclusive: true },
-  { name: 'Doubleview', postcode: '6018', propertyCount: 652, isExclusive: true },
-  { name: 'Innaloo', postcode: '6018', propertyCount: 521, isExclusive: false },
-  { name: 'Trigg', postcode: '6029', propertyCount: 412, isExclusive: true },
-]
+export const mockSuburbs: Suburb[] = []
 
+// Mock data removed — real data fetched from Supabase via lib/api.ts
 export const mockProperties: Property[] = [
+  // empty — populated from Supabase
   {
-    id: '1',
+    id: '_placeholder',
     rank: 1,
     address: '14 Doreen Street',
     suburb: 'Karrinyup',
@@ -429,10 +425,10 @@ export const mockProperties: Property[] = [
 ]
 
 export const currentAgent = {
-  name: 'Sarah Mitchell',
-  email: 'sarah.mitchell@remax.com.au',
+  name: 'Stratton Agent',
+  email: 'erfan.hassani@strattonrealty.com.au',
   plan: 'Premium Agent',
-  rpDataEmail: 'sarah.mitchell@remax.com.au',
+  rpDataEmail: 'strattonsales',
   id4meConnected: true,
   weeklyDigest: true,
   signalAlerts: true,

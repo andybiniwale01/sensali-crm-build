@@ -4,7 +4,10 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { SensaliLogoSmall } from '@/components/sensali-logo'
-import { currentAgent, mockSuburbs } from '@/lib/data'
+import { currentAgent } from '@/lib/data'
+import { fetchSuburbs } from '@/lib/api'
+import { useEffect, useState } from 'react'
+import type { Suburb } from '@/lib/data'
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: DashboardIcon },
@@ -119,6 +122,12 @@ export function DashboardSidebar({ selectedSuburb, onSuburbChange }: DashboardSi
 }
 
 export function SuburbSelector({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [suburbs, setSuburbs] = useState<Suburb[]>([])
+
+  useEffect(() => {
+    fetchSuburbs().then(setSuburbs).catch(console.error)
+  }, [])
+
   return (
     <select
       value={value}
@@ -126,7 +135,7 @@ export function SuburbSelector({ value, onChange }: { value: string; onChange: (
       className="bg-[#161b22] border border-[#30363d] text-white px-4 py-2 text-sm focus:outline-none focus:border-[#C9A84C] cursor-pointer"
     >
       <option value="all">All Suburbs</option>
-      {mockSuburbs.map((suburb) => (
+      {suburbs.map((suburb) => (
         <option key={suburb.name} value={suburb.name}>
           {suburb.name} ({suburb.postcode})
         </option>

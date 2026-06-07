@@ -1,6 +1,7 @@
 'use client'
 
 import { Property, generateWhyTheySell, generateColdCallScript } from '@/lib/data'
+import { saveOutcome } from '@/lib/api'
 import { useState } from 'react'
 
 interface PropertyPanelProps {
@@ -103,7 +104,8 @@ export function PropertyPanel({ property, onClose, onUpdateProperty }: PropertyP
   const [notes, setNotes] = useState(property?.notes || '')
   const [followUpDate, setFollowUpDate] = useState(property?.followUpDate || '')
   const [status, setStatus] = useState(property?.status || 'NOT_CALLED')
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied]   = useState(false)
+  const [saving, setSaving]   = useState(false)
 
   if (!property) return null
 
@@ -116,7 +118,15 @@ export function PropertyPanel({ property, onClose, onUpdateProperty }: PropertyP
     setTimeout(() => setCopied(false), 2000)
   }
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      await saveOutcome(property.id, status, notes, followUpDate || null)
+    } catch (e) {
+      console.error('Failed to save outcome:', e)
+    } finally {
+      setSaving(false)
+    }
     onUpdateProperty({
       ...property,
       notes,
@@ -257,9 +267,10 @@ export function PropertyPanel({ property, onClose, onUpdateProperty }: PropertyP
         {/* Save Button */}
         <button
           onClick={handleSave}
-          className="w-full bg-[#C9A84C] text-[#0d1117] font-semibold py-3 px-4 hover:bg-[#a08839] transition-colors"
+          className="w-full bg-[#C9A84C] text-[#0d1117] font-semibold py-3 px-4 hover:bg-[#a08839] transition-colors disabled:opacity-50"
+          disabled={saving}
         >
-          Save
+          {saving ? 'Saving...' : 'Save'}
         </button>
       </div>
     </div>

@@ -1,65 +1,62 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { DashboardSidebar, SuburbSelector } from '@/components/dashboard-sidebar'
 import { PropertyPanel, StatusBadge, SignalTag, MiniScoreGauge } from '@/components/property-panel'
-import { mockProperties, Property } from '@/lib/data'
+import { Property } from '@/lib/data'
+import { fetchProperties } from '@/lib/api'
 
 type FilterStatus = 'ALL' | 'HOT' | 'WARM' | 'COLD' | 'NOT_CALLED'
 
 export default function LeadsPage() {
-  const [selectedSuburb, setSelectedSuburb] = useState('all')
+  const [selectedSuburb, setSelectedSuburb]   = useState('all')
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null)
-  const [properties, setProperties] = useState(mockProperties)
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>('ALL')
-  const [searchQuery, setSearchQuery] = useState('')
+  const [properties, setProperties]           = useState<Property[]>([])
+  const [filterStatus, setFilterStatus]       = useState<FilterStatus>('ALL')
+  const [searchQuery, setSearchQuery]         = useState('')
+  const [loading, setLoading]                 = useState(true)
+
+  useEffect(() => {
+    setLoading(true)
+    fetchProperties(selectedSuburb)
+      .then(setProperties)
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }, [selectedSuburb])
 
   const filteredProperties = useMemo(() => {
     let result = properties
-
-    // Filter by suburb
-    if (selectedSuburb !== 'all') {
-      result = result.filter(p => p.suburb === selectedSuburb)
-    }
-
-    // Filter by status
     if (filterStatus !== 'ALL') {
       result = result.filter(p => p.status === filterStatus)
     }
-
-    // Filter by search query
     if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      result = result.filter(p => 
-        p.address.toLowerCase().includes(query) ||
-        p.ownerName.toLowerCase().includes(query)
+      const q = searchQuery.toLowerCase()
+      result = result.filter(p =>
+        p.address.toLowerCase().includes(q) ||
+        p.ownerName.toLowerCase().includes(q)
       )
     }
-
     return result
-  }, [properties, selectedSuburb, filterStatus, searchQuery])
+  }, [properties, filterStatus, searchQuery])
 
-  const handleUpdateProperty = (updatedProperty: Property) => {
-    setProperties(props => 
-      props.map(p => p.id === updatedProperty.id ? updatedProperty : p)
-    )
+  const handleUpdateProperty = (updated: Property) => {
+    setProperties(prev => prev.map(p => p.id === updated.id ? updated : p))
   }
 
   const filterButtons: { status: FilterStatus; label: string }[] = [
-    { status: 'ALL', label: 'All' },
-    { status: 'HOT', label: 'Hot' },
-    { status: 'WARM', label: 'Warm' },
-    { status: 'COLD', label: 'Cold' },
+    { status: 'ALL',        label: 'All' },
+    { status: 'HOT',        label: 'Hot' },
+    { status: 'WARM',       label: 'Warm' },
+    { status: 'COLD',       label: 'Cold' },
     { status: 'NOT_CALLED', label: 'Not Called' },
   ]
 
   return (
     <div className="min-h-screen bg-[#0d1117]">
       <DashboardSidebar selectedSuburb={selectedSuburb} onSuburbChange={setSelectedSuburb} />
-      
+
       <main className="ml-64 min-h-screen">
         <div className="p-8">
-          {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div>
               <h1 className="text-2xl font-bold text-white">My Leads</h1>
@@ -68,9 +65,7 @@ export default function LeadsPage() {
             <SuburbSelector value={selectedSuburb} onChange={setSelectedSuburb} />
           </div>
 
-          {/* Filters */}
           <div className="flex gap-4 mb-6">
-            {/* Status Filters */}
             <div className="flex gap-1">
               {filterButtons.map((btn) => (
                 <button
@@ -86,16 +81,9 @@ export default function LeadsPage() {
                 </button>
               ))}
             </div>
-
-            {/* Search */}
             <div className="flex-1 max-w-md ml-auto">
               <div className="relative">
-                <svg 
-                  className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8b949e]" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
+                <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8b949e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="square" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
@@ -109,12 +97,10 @@ export default function LeadsPage() {
             </div>
           </div>
 
-          {/* Results Count */}
           <p className="text-sm text-[#8b949e] mb-4">
-            Showing {filteredProperties.length} properties
+            {loading ? 'Loading...' : `Showing ${filteredProperties.length} properties`}
           </p>
 
-          {/* Table */}
           <div className="bg-[#161b22] border border-[#30363d]">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -131,7 +117,7 @@ export default function LeadsPage() {
                 </thead>
                 <tbody>
                   {filteredProperties.map((property) => (
-                    <tr 
+                    <tr
                       key={property.id}
                       onClick={() => setSelectedProperty(property)}
                       className="border-b border-[#21262d] cursor-pointer hover:bg-[rgba(201,168,76,0.05)] hover:border-l-[3px] hover:border-l-[#C9A84C] transition-all"
@@ -146,9 +132,7 @@ export default function LeadsPage() {
                         </div>
                       </td>
                       <td className="px-4 py-4 text-sm text-white">{property.ownerName}</td>
-                      <td className="px-4 py-4">
-                        <MiniScoreGauge score={property.score} />
-                      </td>
+                      <td className="px-4 py-4"><MiniScoreGauge score={property.score} /></td>
                       <td className="px-4 py-4">
                         <div className="flex flex-wrap gap-1">
                           {property.signals.slice(0, 2).map((signal, idx) => (
@@ -159,19 +143,15 @@ export default function LeadsPage() {
                           )}
                         </div>
                       </td>
-                      <td className="px-4 py-4">
-                        <StatusBadge status={property.status} />
-                      </td>
-                      <td className="px-4 py-4 text-sm text-[#8b949e]">
-                        {property.lastContact || '—'}
-                      </td>
+                      <td className="px-4 py-4"><StatusBadge status={property.status} /></td>
+                      <td className="px-4 py-4 text-sm text-[#8b949e]">{property.lastContact || '—'}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            {filteredProperties.length === 0 && (
+            {!loading && filteredProperties.length === 0 && (
               <div className="p-12 text-center">
                 <p className="text-[#8b949e]">No properties found matching your criteria.</p>
               </div>
@@ -180,15 +160,11 @@ export default function LeadsPage() {
         </div>
       </main>
 
-      {/* Property Side Panel */}
       {selectedProperty && (
         <>
-          <div 
-            className="fixed inset-0 bg-black/50 z-40"
-            onClick={() => setSelectedProperty(null)}
-          />
-          <PropertyPanel 
-            property={selectedProperty} 
+          <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setSelectedProperty(null)} />
+          <PropertyPanel
+            property={selectedProperty}
             onClose={() => setSelectedProperty(null)}
             onUpdateProperty={handleUpdateProperty}
           />
